@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交互式报告：新一代层级功能探测方法论</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Academia -->
+    <!-- Application Structure Plan: The SPA is designed as a thematic, single-page narrative that mirrors the report's three-part structure. This is more intuitive for users than a dashboard. 1. A hero section grabs attention and states the core problem. 2. A sticky navigation bar allows quick access to the three main pillars. 3. Each pillar is a dedicated section with interactive visualizations to explain complex concepts (e.g., comparing attribution methods, showing the causal loop, visualizing a 'functional fingerprint'). 4. The static table from the report is transformed into an interactive, filterable tool. 5. The structure builds knowledge progressively, making the dense academic content digestible. This user-centric flow, moving from problem to solution to application, is chosen for maximum clarity and engagement. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Methods Comparison Table -> Goal: Compare -> Viz: Interactive HTML Table -> Interaction: Filter by properties (Nature, Cost) -> Justification: Transforms a static table into a user-driven tool, enhancing utility. -> Library: Vanilla JS.
+        - Report Info: Part 1 - Attribution Methods -> Goal: Compare -> Viz: Conceptual diagram + side-by-side text -> Interaction: Buttons to switch between methods, updating the visual and text. -> Justification: Visually clarifies the abstract differences (e.g., noisy vs. clean paths) between methods. -> Library: HTML/CSS/JS.
+        - Report Info: Part 2 - Causal Experimentation -> Goal: Explain a process -> Viz: Step-by-step process diagram -> Interaction: Scroll-based animation reveals each step. -> Justification: Breaks down the complex scientific method into a manageable, linear flow. -> Library: JS (Intersection Observer).
+        - Report Info: Part 3 - Functional Fingerprint -> Goal: Explain a multi-dimensional concept -> Viz: Radar Chart -> Interaction: Toggles to compare fingerprints of different hypothetical layers. -> Justification: A radar chart is a perfect visual metaphor for a multi-dimensional "fingerprint," making the concept concrete and comparable. -> Library: Chart.js.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .nav-link { transition: color 0.3s, border-color 0.3s; }
+        .nav-link.active, .nav-link:hover { color: #4f46e5; border-bottom-color: #4f46e5; }
+        .content-card { transition: transform 0.3s, box-shadow 0.3s; }
+        .content-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .step { transition: opacity 0.5s, transform 0.5s; }
+        .step.is-visible { opacity: 1; transform: translateX(0); }
+        .step:not(.is-visible) { opacity: 0; transform: translateX(-20px); }
+        .pill-btn { transition: background-color 0.3s, color 0.3s; }
+        .pill-btn.active { background-color: #4f46e5; color: white; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <header id="main-header" class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-indigo-600">层级功能探测</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#intro" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 border-b-2 border-transparent">引言</a>
+                        <a href="#pillar1" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 border-b-2 border-transparent">统一归因</a>
+                        <a href="#pillar2" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 border-b-2 border-transparent">因果探测</a>
+                        <a href="#pillar3" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 border-b-2 border-transparent">功能指纹</a>
+                        <a href="#comparison" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 border-b-2 border-transparent">方法比较</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+
+        <section id="intro" class="text-center mb-24">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">锻造新一代层级功能探测方法论</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-slate-600">
+                Transformer模型以其强大的性能改变了AI领域，但其内部运作机制仍如“黑箱”。本研究旨在超越现有工具，通过整合归因、干预和比较分析，构建一个更强大、更鲁棒、更具因果性的探测框架，迈向“架构特定可解释性”的新时代。
+            </p>
+        </section>
+
+        <section id="pillar1" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900">第一部分：锻造统一归因框架</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-md text-slate-500">融合传播与梯度方法的优势，构建一个更鲁棒、更忠实的混合归因系统。</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="bg-white p-6 rounded-lg shadow-lg content-card">
+                    <div class="flex justify-center space-x-2 mb-6">
+                        <button id="btn-grad" class="pill-btn px-4 py-2 text-sm font-semibold bg-slate-200 rounded-full">梯度方法</button>
+                        <button id="btn-lrp" class="pill-btn px-4 py-2 text-sm font-semibold bg-slate-200 rounded-full">LRP方法</button>
+                        <button id="btn-hybrid" class="pill-btn px-4 py-2 text-sm font-semibold bg-slate-200 rounded-full active">混合方法 (拟议)</button>
+                    </div>
+                    <div id="attribution-viz" class="h-48 bg-slate-100 rounded-md p-4 flex items-center justify-center mb-4">
+                        <div id="viz-content" class="text-center"></div>
+                    </div>
+                    <div id="attribution-text">
+                        <h4 class="font-bold text-lg mb-2"></h4>
+                        <p class="text-slate-600 text-sm"></p>
+                    </div>
+                </div>
+                <div class="prose prose-indigo max-w-none">
+                    <h3 class="text-2xl font-semibold">从混乱到清晰：为何需要统一框架？</h3>
+                    <p>现有的归因方法分为两大阵营：基于梯度的方法计算高效但充满噪声；基于传播的方法（如LRP）理论严谨但实现复杂且常需为特定架构定制。没有任何单一方法是万能的。</p>
+                    <p>我们的目标是设计一个由梯度信息动态调制的LRP新规则。这种<strong>混合方法</strong>能让相关性传播更关注模型中稳定且有意义的信号通路，有效结合LRP的守恒性与梯度的局部敏感性，产生噪声更少、更聚焦的解释。</p>
+                    <blockquote>我们提倡构建一个由可量化的忠实度指标（如NAOPC）引导的“元解释器”，它能根据具体情况自动权衡不同方法的优劣，输出最忠实的解释。</blockquote>
+                </div>
+            </div>
+        </section>
+
+        <section id="pillar2" class="mb-24 scroll-mt-20">
+             <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900">第二部分：从相关到因果</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-md text-slate-500">利用可控反事实生成技术，将可解释性研究从观察性科学转变为实验性科学。</p>
+            </div>
+            <div class="bg-white p-8 rounded-lg shadow-lg content-card">
+                 <h3 class="text-2xl font-semibold text-center mb-8">因果探测的实验流程</h3>
+                 <div class="flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0 md:space-x-4">
+                     <div class="step text-center w-full md:w-1/4">
+                         <div class="bg-indigo-100 text-indigo-600 w-16 h-16 rounded-full mx-auto flex items-center justify-center text-2xl font-bold mb-2">1</div>
+                         <h4 class="font-bold">观察与假设</h4>
+                         <p class="text-sm text-slate-500">使用DecoderLens等工具观察模型隐层状态，形成关于某层功能的初步假设。</p>
+                     </div>
+                      <div class="step text-center w-full md:w-1/4">
+                         <div class="text-3xl text-slate-300 mx-auto hidden md:block">→</div>
+                     </div>
+                     <div class="step text-center w-full md:w-1/4">
+                         <div class="bg-indigo-100 text-indigo-600 w-16 h-16 rounded-full mx-auto flex items-center justify-center text-2xl font-bold mb-2">2</div>
+                         <h4 class="font-bold">干预与生成</h4>
+                         <p class="text-sm text-slate-500">利用Dataset Interfaces等工具生成可控的、最小变化对的反事实样本。</p>
+                     </div>
+                     <div class="step text-center w-full md:w-1/4">
+                         <div class="text-3xl text-slate-300 mx-auto hidden md:block">→</div>
+                     </div>
+                     <div class="step text-center w-full md:w-1/4">
+                         <div class="bg-indigo-100 text-indigo-600 w-16 h-16 rounded-full mx-auto flex items-center justify-center text-2xl font-bold mb-2">3</div>
+                         <h4 class="font-bold">测量与验证</h4>
+                         <p class="text-sm text-slate-500">将反事实样本输入模型，测量内部表征（如CKA）或行为的变化，验证因果联系。</p>
+                     </div>
+                 </div>
+            </div>
+        </section>
+        
+        <section id="pillar3" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900">第三部分：量化层级功能与“功能指纹”</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-md text-slate-500">开发一套全面的度量指标，为每个Transformer层创建独一无二的“功能指纹”。</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                 <div class="prose prose-indigo max-w-none">
+                     <h3 class="text-2xl font-semibold">功能的多维度定义</h3>
+                    <p>“层功能”是多维度的。我们提出的“功能指纹”由三个核心支柱构成，旨在捕捉功能的三个关键方面：</p>
+                    <ul>
+                        <li><strong>归因相似性 (贡献剖面):</strong> 两层是否“关注”了相同的输入特征？</li>
+                        <li><strong>探测任务性能相似性 (知识剖面):</strong> 两层是否学会了解决相似的子任务？</li>
+                        <li><strong>因果干预相似性 (行为剖面):</strong> 面对相同的语义扰动，两层的反应模式是否相似？</li>
+                    </ul>
+                    <p>通过量化这些维度，我们可以精确比较不同模型学到的内部计算策略，并指导“功能导向”的模型优化。</p>
+                 </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg content-card">
+                    <div class="flex justify-center space-x-4 mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="layer" value="low" class="form-radio h-4 w-4 text-indigo-600" checked>
+                            <span class="ml-2 text-slate-700">对比：底层 (如 Layer 2)</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="layer" value="high" class="form-radio h-4 w-4 text-indigo-600">
+                            <span class="ml-2 text-slate-700">对比：高层 (如 Layer 10)</span>
+                        </label>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="fingerprintChart"></canvas>
+                    </div>
+                    <p id="fingerprint-explanation" class="text-center text-sm text-slate-500 mt-4"></p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="comparison" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900">层级可解释性方法比较</h2>
+                <p class="mt-2 max-w-2xl mx-auto text-md text-slate-500">根据您的研究需求，交互式地筛选和比较关键的可解释性工具。</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg content-card">
+                <div class="flex flex-wrap gap-4 mb-6">
+                     <div class="flex items-center space-x-2">
+                        <span class="font-medium text-sm">洞察性质:</span>
+                        <select id="filter-nature" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <option value="all">全部</option>
+                            <option value="相关性归因">相关性归因</option>
+                            <option value="相关性探测">相关性探测</option>
+                            <option value="因果干预">因果干预</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-medium text-sm">计算成本:</span>
+                         <select id="filter-cost" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <option value="all">全部</option>
+                            <option value="低">低</option>
+                            <option value="低至中">低至中</option>
+                            <option value="中">中</option>
+                            <option value="高">高</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">方法论</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">核心原理</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">洞察性质</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">计算成本</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">主要优势</th>
+                            </tr>
+                        </thead>
+                        <tbody id="methods-table-body" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-white mt-24">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+            <p>&copy; 2025 新一代层级功能探测方法论研究. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Data ---
+    const attributionData = {
+        grad: {
+            title: '基于梯度的方法',
+            description: '高效但充满噪声。利用反向传播计算输出对输入的偏导数，但结果可能不稳定且具有误导性。',
+            viz: '<div class="text-red-500">噪声信号<br>↓ ↘ →</div><div class="text-green-500 font-bold">真实信号<br>↓</div><div class="text-red-500">噪声信号<br>↙ ← ↓</div>'
+        },
+        lrp: {
+            title: '基于传播的方法 (LRP)',
+            description: '理论严谨但实现复杂。基于相关性守恒原则，将相关性分数从输出逐层向后分配，更忠实但需为架构定制。',
+            viz: '<div class="text-green-500 font-bold opacity-30">信号<br>↓</div><div class="text-green-500 font-bold">信号<br>↓</div><div class="text-green-500 font-bold opacity-30">信号<br>↓</div>'
+        },
+        hybrid: {
+            title: '混合归因方法 (拟议)',
+            description: '两全其美。由梯度信息动态调制LRP规则，放大稳定且有意义的信号通路，抑制噪声，获得更鲁棒、更聚焦的解释。',
+            viz: '<div class="text-slate-400">被抑制的信号<br>↓</div><div class="text-green-500 font-bold text-xl">增强的真实信号<br>↓↓</div><div class="text-slate-400">被抑制的信号<br>↓</div>'
+        }
+    };
+
+    const fingerprintData = {
+        low: {
+            label: '底层 (如 Layer 2)',
+            data: [0.8, 0.9, 0.3],
+            explanation: '底层通常表现出较高的探测任务性能（如词性标注等句法任务）和归因相似性，但对高级语义的因果干预反应较弱。'
+        },
+        high: {
+            label: '高层 (如 Layer 10)',
+            data: [0.4, 0.5, 0.9],
+            explanation: '高层则相反，更专注于高级语义任务，因此对因果干预（如改变背景）更敏感，但在低级探测任务上性能较低。'
+        }
+    };
+    
+    const methodsData = [
+        { name: 'AttnLRP', principle: '基于深度泰勒分解的相关性传播，并为注意力机制定制了传播规则。', nature: '相关性归因', cost: '低', advantage: '忠实度高；计算高效；可解释隐层表示。' },
+        { name: 'Chefer等人方法', principle: '相关性传播与基于梯度的注意力头加权平均及“rollout”机制相结合。', nature: '相关性归因', cost: '低至中', advantage: '可生成类别相关的可视化结果；通过归一化处理跳跃连接。' },
+        { name: 'DecoderLens', principle: '通过让解码器交叉关注编码器的中间层输出来进行探测。', nature: '相关性探测', cost: '中', advantage: '将隐层状态“翻译”为人类可读的文本；无需额外训练。' },
+        { name: 'Dataset Interfaces', principle: '使用文本反演和扩散模型生成可控的反事实样本。', nature: '因果干预', cost: '高', advantage: '能够进行真正的因果实验；可扩展地生成分布偏移数据。' }
+    ];
+
+    // --- Pillar 1: Attribution Visualizer ---
+    const vizContent = document.getElementById('viz-content');
+    const attrTitle = document.querySelector('#attribution-text h4');
+    const attrDesc = document.querySelector('#attribution-text p');
+    const buttons = {
+        grad: document.getElementById('btn-grad'),
+        lrp: document.getElementById('btn-lrp'),
+        hybrid: document.getElementById('btn-hybrid')
+    };
+
+    function updateAttribution(method) {
+        const data = attributionData[method];
+        vizContent.innerHTML = data.viz;
+        attrTitle.textContent = data.title;
+        attrDesc.textContent = data.description;
+        
+        Object.values(buttons).forEach(btn => btn.classList.remove('active'));
+        buttons[method].classList.add('active');
+    }
+
+    Object.keys(buttons).forEach(key => {
+        buttons[key].addEventListener('click', () => updateAttribution(key));
+    });
+
+    updateAttribution('hybrid');
+
+    // --- Pillar 2: Causal Flow Animation ---
+    const steps = document.querySelectorAll('.step');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+            }
+        });
+    }, { threshold: 0.5 });
+    steps.forEach(step => observer.observe(step));
+    
+    // --- Pillar 3: Functional Fingerprint Chart ---
+    const ctx = document.getElementById('fingerprintChart').getContext('2d');
+    const fingerprintExplanation = document.getElementById('fingerprint-explanation');
+    let fingerprintChart;
+
+    function createOrUpdateChart(layerKey) {
+        const data = fingerprintData[layerKey];
+        fingerprintExplanation.textContent = data.explanation;
+
+        if (fingerprintChart) {
+            fingerprintChart.data.datasets[0].data = data.data;
+            fingerprintChart.data.datasets[0].label = data.label;
+            fingerprintChart.update();
+        } else {
+            fingerprintChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['探测任务性能', '归因相似性', '因果干预敏感度'],
+                    datasets: [{
+                        label: data.label,
+                        data: data.data,
+                        fill: true,
+                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                        borderColor: 'rgb(79, 70, 229)',
+                        pointBackgroundColor: 'rgb(79, 70, 229)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(79, 70, 229)'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: { font: { size: 12 } },
+                            suggestedMin: 0,
+                            suggestedMax: 1
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
+    document.querySelectorAll('input[name="layer"]').forEach(radio => {
+        radio.addEventListener('change', (event) => {
+            createOrUpdateChart(event.target.value);
+        });
+    });
+
+    createOrUpdateChart('low');
+    
+    // --- Comparison Table ---
+    const tableBody = document.getElementById('methods-table-body');
+    const filterNature = document.getElementById('filter-nature');
+    const filterCost = document.getElementById('filter-cost');
+
+    function populateTable(filteredData) {
+        tableBody.innerHTML = '';
+        filteredData.forEach(method => {
+            const row = `
+                <tr class="transition hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${method.name}</td>
+                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">${method.principle}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${method.nature === '因果干预' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">${method.nature}</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${method.cost}</td>
+                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">${method.advantage}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    function filterData() {
+        const natureValue = filterNature.value;
+        const costValue = filterCost.value;
+
+        const filtered = methodsData.filter(method => {
+            const natureMatch = natureValue === 'all' || method.nature === natureValue;
+            const costMatch = costValue === 'all' || method.cost === costValue;
+            return natureMatch && costMatch;
+        });
+        populateTable(filtered);
+    }
+    
+    filterNature.addEventListener('change', filterData);
+    filterCost.addEventListener('change', filterData);
+
+    populateTable(methodsData);
+    
+    // --- Active Nav Link on Scroll ---
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    const navObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === entry.target.id) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, { rootMargin: '-50% 0px -50% 0px' });
+
+    sections.forEach(section => navObserver.observe(section));
+
+});
+</script>
+
+</body>
+</html>
