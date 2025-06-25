@@ -1,0 +1,7 @@
+@font-face {
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 100 900; /* 支持的权重范围 */
+    src: url('/fonts/noto-sans-sc/NotoSansSC-VariableFont_wght.ttf') format('truetype');
+    font-display: swap;
+}

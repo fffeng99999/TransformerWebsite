@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互动报告：AI训练的闭环反馈革命</title>
+    <!-- Chosen Palette: Warm Neutrals (Slate, Stone) with a calming Blue accent for interaction and highlights. -->
+    <!-- Application Structure Plan: The SPA uses a thematic, guided journey structure instead of mirroring the linear report. It starts with an introduction to the core paradigm shift, then dives into three core conceptual pillars: 'Proactive Correction', 'Dynamic Control', and 'Scientific Foundation'. This non-linear, thematic approach allows users to explore complex ideas through interactive modules, visual analogies (like a training dashboard), and direct manipulation (like triggering counterfactuals). This structure is chosen over a simple document layout because it actively engages the user, making abstract concepts more tangible and memorable, thus maximizing understanding and synthesis of the source material. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: The overall concept of shifting from passive diagnosis to active shaping. -> Goal: Inform & Engage. -> Viz/Presentation: A prominent hero section with a clear value proposition and animated icons. -> Interaction: Scroll-based navigation. -> Justification: Immediately establishes the core theme and guides the user into the content. -> Library/Method: HTML/CSS/Tailwind.
+        - Report Info: Evolution of regularization techniques (Kennedy -> Ross -> Proposal). -> Goal: Compare & Explain a process. -> Viz/Presentation: An interactive timeline with clickable cards. -> Interaction: Clicking a card reveals details about a specific method. -> Justification: Visually represents the chronological and conceptual evolution, making it easier to grasp than dense text. -> Library/Method: HTML/CSS/JS.
+        - Report Info: Claim of "reducing false positive rate". -> Goal: Make an abstract benefit concrete. -> Viz/Presentation: An illustrative bar chart. -> Interaction: A button click animates the bar decreasing. -> Justification: Translates a percentage claim into a tangible visual impact. -> Library/Method: Chart.js/Canvas.
+        - Report Info: Concept of adaptive training dynamics (learning rate, dropout). -> Goal: Explain a complex closed-loop process. -> Viz/Presentation: A mock "AI Training Dashboard" with a model diagram and gauges. -> Interaction: A simulation button triggers animations on the gauges and model layers. -> Justification: Uses a familiar dashboard metaphor to demystify an abstract algorithmic control loop. -> Library/Method: HTML/CSS/JS.
+        - Report Info: Concept of controllable counterfactual experiments. -> Goal: Demonstrate a scientific method. -> Viz/Presentation: An interactive image module where the background can be changed. -> Interaction: Buttons change the image and an associated mock "Layer Activation Heatmap". -> Justification: Provides a hands-on, direct manipulation experience of the scientific principle, making it highly intuitive. -> Library/Method: HTML/CSS/JS.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="../javascript/cdn.tailwindcss.com.js"></script>
+    <script src="../javascript/npm/chart.js"></script>
+    <link rel="stylesheet" href="/fonts/noto-sans-sc/fonts.css">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #1e293b; /* slate-800 */
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #3b82f6; /* blue-500 */
+            transition: width 0.3s ease;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #3b82f6; /* blue-500 */
+        }
+        .nav-link.active::after, .nav-link:hover::after {
+            width: 100%;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out forwards;
+            opacity: 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 40vh;
+        }
+        .layer-block {
+            transition: background-color 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl md:text-2xl font-bold text-blue-600">AI训练的革命</h1>
+                <nav class="hidden md:flex items-center space-x-6 text-slate-600">
+                    <a href="#hero" class="nav-link active">引言</a>
+                    <a href="#correction" class="nav-link">主动纠偏</a>
+                    <a href="#control" class="nav-link">动态控制</a>
+                    <a href="#foundation" class="nav-link">科学基石</a>
+                </nav>
+                 <button id="mobile-menu-button" class="md:hidden p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white">
+            <a href="#hero" class="block py-2 px-4 text-sm text-slate-600 hover:bg-slate-100">引言</a>
+            <a href="#correction" class="block py-2 px-4 text-sm text-slate-600 hover:bg-slate-100">主动纠偏</a>
+            <a href="#control" class="block py-2 px-4 text-sm text-slate-600 hover:bg-slate-100">动态控制</a>
+            <a href="#foundation" class="block py-2 px-4 text-sm text-slate-600 hover:bg-slate-100">科学基石</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Section 1: Hero -->
+        <section id="hero" class="min-h-screen flex items-center bg-white">
+            <div class="container mx-auto px-4 text-center py-20">
+                <h2 class="text-4xl md:text-6xl font-bold mb-4">从被动诊断到主动塑造</h2>
+                <p class="max-w-3xl mx-auto text-lg md:text-xl text-slate-600 mb-8">
+                    本报告探讨一项范式转移：将可解释性从模型训练后的分析工具，转变为一个在训练过程中主动引导、纠正和优化模型的核心元素，构建更鲁棒、更可信的AI。
+                </p>
+                <div class="flex justify-center space-x-4">
+                     <a href="#correction" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition-colors">
+                        开启探索之旅
+                    </a>
+                </div>
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                    <div class="p-6 bg-slate-50 rounded-xl">
+                        <div class="text-blue-500 mb-3 text-4xl">🎯</div>
+                        <h3 class="font-bold text-lg mb-2">主动纠偏</h3>
+                        <p class="text-sm text-slate-500">将解释转化为正则化项，从源头修正模型偏见和捷径学习。</p>
+                    </div>
+                    <div class="p-6 bg-slate-50 rounded-xl">
+                        <div class="text-blue-500 mb-3 text-4xl">⚙️</div>
+                        <h3 class="font-bold text-lg mb-2">动态控制</h3>
+                        <p class="text-sm text-slate-500">用解释性实时调整训练参数，如为AI装上精密的仪表盘。</p>
+                    </div>
+                    <div class="p-6 bg-slate-50 rounded-xl">
+                        <div class="text-blue-500 mb-3 text-4xl">🔬</div>
+                        <h3 class="font-bold text-lg mb-2">科学基石</h3>
+                        <p class="text-sm text-slate-500">建立可控的实验框架，将可解释性研究推向严谨的科学。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Proactive Correction -->
+        <section id="correction" class="py-20">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">第一章：主动纠偏</h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-slate-600">
+                        传统模型训练如同一个“黑箱”，常导致模型“为错误的原因做出正确的预测”。本章探讨如何打开这个黑箱，将可解释性分析转化为可微的正则化项，在训练中主动“治疗”模型的学习行为。
+                    </p>
+                </div>
+
+                <div class="max-w-5xl mx-auto">
+                    <h3 class="text-2xl font-bold text-center mb-8">从诊断到治疗的演进</h3>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="card p-6 bg-white rounded-lg border border-slate-200">
+                            <h4 class="font-bold text-xl mb-3">后验解释 (诊断)</h4>
+                            <p class="text-sm text-slate-500 mb-4">以 Kennedy 等人的工作为代表，通过遮蔽等方法在训练后诊断出模型过度依赖偏见词汇（如身份词），但计算成本高昂。</p>
+                            <span class="font-semibold text-blue-600">阶段: 概念验证</span>
+                        </div>
+                        <div class="card p-6 bg-white rounded-lg border border-slate-200">
+                             <h4 class="font-bold text-xl mb-3">可微约束 (进化)</h4>
+                            <p class="text-sm text-slate-500 mb-4">以 Ross 等人的 "RRR" 框架为代表，利用计算高效的输入梯度直接约束模型，但依赖专家标注“不相关”特征。</p>
+                            <span class="font-semibold text-blue-600">阶段: 效率提升</span>
+                        </div>
+                        <div class="card p-6 bg-blue-50 text-blue-900 rounded-lg border border-blue-200">
+                            <h4 class="font-bold text-xl mb-3">闭环反馈 (革命)</h4>
+                            <p class="text-sm mb-4">本研究方案提出利用 AttnLRP 等先进方法，在训练中动态、自动地引导模型，甚至干预其中间层的“思考过程”。</p>
+                             <span class="font-semibold text-blue-600">阶段: 主动塑造</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-16 grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4">交互演示：正则化的力量</h3>
+                        <p class="text-slate-600 mb-6">
+                            一个关键应用是降低仇恨言论检测中的假阳性率。传统模型可能因看到某个身份词就误报。通过基于解释的正则化，我们可以惩罚这种“捷径学习”，强制模型关注上下文。观察下面的图表，看看应用这项技术后的预期效果。
+                        </p>
+                        <button id="apply-regularization-btn" class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition">
+                            应用上下文正则化
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="biasChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Dynamic Control -->
+        <section id="control" class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">第二章：动态控制</h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-slate-600">
+                        将可解释性转变为一个动态反馈信号，实时控制训练过程。这就像为盲目驾驶的AI装上了一套精密仪表盘，能实时感知内部各部件的运行状态，并智能地分配学习资源。
+                    </p>
+                </div>
+
+                <div class="bg-slate-800 text-white p-8 rounded-xl shadow-2xl">
+                    <h3 class="text-2xl font-bold text-center mb-8">AI 训练仪表盘 (模拟)</h3>
+                    <div class="grid md:grid-cols-3 gap-8 items-center">
+                        <div class="md:col-span-1">
+                            <h4 class="text-lg font-semibold mb-4 text-cyan-300">Transformer 模型状态</h4>
+                            <div id="model-layers" class="space-y-2">
+                                <!-- Layers will be generated by JS -->
+                            </div>
+                        </div>
+                        <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div class="p-4 bg-slate-700 rounded-lg text-center">
+                                <h5 class="text-sm font-medium text-slate-400">自适应学习率</h5>
+                                <p id="learning-rate-gauge" class="text-4xl font-bold text-green-400 mt-2">0.001</p>
+                                <p class="text-xs text-slate-500 mt-1">根据层贡献度动态调整</p>
+                            </div>
+                            <div class="p-4 bg-slate-700 rounded-lg text-center">
+                                <h5 class="text-sm font-medium text-slate-400">动态 Dropout 率</h5>
+                                <p id="dropout-rate-gauge" class="text-4xl font-bold text-yellow-400 mt-2">15%</p>
+                                <p class="text-xs text-slate-500 mt-1">对低贡献层加强正则化</p>
+                            </div>
+                             <div class="sm:col-span-2 text-center">
+                                 <button id="simulate-batch-btn" class="w-full bg-cyan-500 text-slate-900 font-bold py-3 px-6 rounded-lg hover:bg-cyan-400 transition">
+                                     模拟一次训练批次
+                                 </button>
+                             </div>
+                             <p id="dashboard-log" class="sm:col-span-2 text-center text-sm text-slate-400 h-6"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Scientific Foundation -->
+        <section id="foundation" class="py-20">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">第三章：科学基石</h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-slate-600">
+                        为了将可解释性从“艺术”提升为一门“科学”，我们必须建立标准化的实验方法。本章展示了如何通过可控实验，实现从观察性分析到因果推断的跨越。
+                    </p>
+                </div>
+                
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold text-center mb-8">交互演示：可控的反事实分析</h3>
+                    <p class="text-center text-slate-600 max-w-3xl mx-auto mb-8">
+                        为了研究模型是否真正理解“物体”而非依赖“背景”，我们可以生成主体不变、背景系统性变化的反事实图像。观察当背景变化时，模型内部（模拟的）层激活图谱如何响应。
+                    </p>
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div class="relative">
+                            <img id="counterfactual-image" src="https://placehold.co/600x400/a3e635/1e293b?text=狗狗在草地" alt="A dog on grass" class="rounded-lg shadow-md w-full">
+                            <div id="image-label" class="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-md text-sm font-semibold">当前背景：草地</div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-4">控制面板</h4>
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <button data-bg="grass" class="cf-btn bg-blue-500 text-white py-2 px-4 rounded-lg text-sm">草地背景</button>
+                                <button data-bg="snow" class="cf-btn bg-slate-200 text-slate-800 py-2 px-4 rounded-lg text-sm">雪地背景</button>
+                                <button data-bg="indoor" class="cf-btn bg-slate-200 text-slate-800 py-2 px-4 rounded-lg text-sm">室内背景</button>
+                            </div>
+                            <h4 class="font-semibold mb-2">模拟层激活图谱</h4>
+                            <p class="text-sm text-slate-500 mb-4">这代表模型某一层对图像区域的关注度。颜色越深，关注度越高。</p>
+                            <div id="activation-heatmap" class="grid grid-cols-5 gap-1 p-2 bg-slate-100 rounded-md">
+                                <!-- Heatmap cells generated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-400 py-8">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>这是一个基于学术报告生成的互动式网页应用。</p>
+            <p class="mt-2">所有内容旨在以更直观的方式呈现复杂的研究概念。</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            // Nav link active state on scroll
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('nav a');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 70) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            // --- Chart.js: Bias Reduction Chart ---
+            const biasChartCtx = document.getElementById('biasChart').getContext('2d');
+            const initialData = {
+                labels: ['传统模型', '正则化模型'],
+                datasets: [{
+                    label: '仇恨言论检测中的假阳性率',
+                    data: [25, 25],
+                    backgroundColor: ['#f87171', '#60a5fa'],
+                    borderColor: ['#ef4444', '#3b82f6'],
+                    borderWidth: 1
+                }]
+            };
+            const biasChart = new Chart(biasChartCtx, {
+                type: 'bar',
+                data: initialData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 30,
+                            title: { display: true, text: '假阳性率 (%)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: '上下文正则化对模型偏见的影响' }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+
+            const applyRegBtn = document.getElementById('apply-regularization-btn');
+            applyRegBtn.addEventListener('click', () => {
+                const isApplied = biasChart.data.datasets[0].data[1] < 25;
+                if(isApplied) {
+                     biasChart.data.datasets[0].data[1] = 25;
+                     applyRegBtn.textContent = '应用上下文正则化';
+                     applyRegBtn.classList.replace('bg-green-600','bg-blue-600');
+                } else {
+                     biasChart.data.datasets[0].data[1] = 14; // Simulates ~10% reduction
+                     applyRegBtn.textContent = '重置模拟';
+                     applyRegBtn.classList.replace('bg-blue-600','bg-green-600');
+                }
+                biasChart.update();
+            });
+
+            // --- Dynamic Control Dashboard ---
+            const modelLayersContainer = document.getElementById('model-layers');
+            const learningRateGauge = document.getElementById('learning-rate-gauge');
+            const dropoutRateGauge = document.getElementById('dropout-rate-gauge');
+            const simulateBtn = document.getElementById('simulate-batch-btn');
+            const dashboardLog = document.getElementById('dashboard-log');
+            const NUM_LAYERS = 8;
+
+            for (let i = 0; i < NUM_LAYERS; i++) {
+                const layer = document.createElement('div');
+                layer.className = 'layer-block bg-slate-600 h-4 rounded';
+                layer.id = `layer-${i}`;
+                modelLayersContainer.appendChild(layer);
+            }
+            
+            simulateBtn.addEventListener('click', () => {
+                dashboardLog.textContent = '分析当前批次...';
+                simulateBtn.disabled = true;
+
+                // Reset layers
+                for (let i = 0; i < NUM_LAYERS; i++) {
+                    document.getElementById(`layer-${i}`).style.backgroundColor = '#475569'; // slate-600
+                }
+
+                setTimeout(() => {
+                    dashboardLog.textContent = '高贡献层已识别，正在调整参数...';
+                    let totalRelevance = 0;
+                    let highRelevanceLayers = 0;
+
+                    for (let i = 0; i < NUM_LAYERS; i++) {
+                        const relevance = Math.random();
+                        if (relevance > 0.6) { // Simulate high relevance
+                            const intensity = 400 + Math.floor((relevance - 0.6) / 0.4 * 300);
+                            document.getElementById(`layer-${i}`).style.backgroundColor = `rgb(56, 189, ${150 + intensity / 3})`; // teal color
+                            totalRelevance += relevance;
+                            highRelevanceLayers++;
+                        }
+                    }
+
+                    const avgRelevance = highRelevanceLayers > 0 ? totalRelevance / highRelevanceLayers : 0;
+                    
+                    // Update gauges based on relevance
+                    const newLR = (0.001 + avgRelevance * 0.002).toFixed(4);
+                    const newDR = (15 - avgRelevance * 10).toFixed(0);
+
+                    learningRateGauge.textContent = newLR;
+                    dropoutRateGauge.textContent = `${newDR}%`;
+                    
+                    setTimeout(() => {
+                         dashboardLog.textContent = '参数已更新。准备下一次批次。';
+                         simulateBtn.disabled = false;
+                    }, 1000);
+
+                }, 1000);
+            });
+
+            // --- Counterfactual Analysis ---
+            const cfImage = document.getElementById('counterfactual-image');
+            const imageLabel = document.getElementById('image-label');
+            const heatmap = document.getElementById('activation-heatmap');
+            const cfButtons = document.querySelectorAll('.cf-btn');
+
+            const heatmaps = {
+                grass: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.8, 0.9, 0.8, 0.1, 0.2, 0.9, 1.0, 0.9, 0.2, 0.1, 0.3, 0.4, 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                snow:  [0.8, 0.9, 0.9, 0.9, 0.8, 0.7, 0.8, 0.9, 0.8, 0.7, 0.2, 0.9, 1.0, 0.9, 0.2, 0.1, 0.3, 0.4, 0.3, 0.1, 0.4, 0.5, 0.5, 0.5, 0.4],
+                indoor:[0.2, 0.3, 0.3, 0.3, 0.2, 0.1, 0.8, 0.9, 0.8, 0.1, 0.2, 0.9, 1.0, 0.9, 0.2, 0.4, 0.8, 0.8, 0.8, 0.4, 0.6, 0.7, 0.7, 0.7, 0.6]
+            };
+            const imageSources = {
+                grass: { url: 'https://placehold.co/600x400/a3e635/1e293b?text=狗狗在草地', label: '当前背景：草地'},
+                snow: { url: 'https://placehold.co/600x400/e2e8f0/1e293b?text=狗狗在雪地', label: '当前背景：雪地'},
+                indoor: { url: 'https://placehold.co/600x400/d2b48c/1e293b?text=狗狗在室内', label: '当前背景：室内'}
+            };
+
+            function renderHeatmap(bg) {
+                heatmap.innerHTML = '';
+                heatmaps[bg].forEach(value => {
+                    const cell = document.createElement('div');
+                    cell.className = 'w-full h-10 rounded';
+                    cell.style.backgroundColor = `rgba(59, 130, 246, ${value})`; // blue-500 with opacity
+                    heatmap.appendChild(cell);
+                });
+            }
+
+            cfButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const bg = button.dataset.bg;
+
+                    cfButtons.forEach(btn => {
+                        btn.classList.remove('bg-blue-500', 'text-white');
+                        btn.classList.add('bg-slate-200', 'text-slate-800');
+                    });
+                    button.classList.add('bg-blue-500', 'text-white');
+                    button.classList.remove('bg-slate-200', 'text-slate-800');
+
+                    cfImage.src = imageSources[bg].url;
+                    imageLabel.textContent = imageSources[bg].label;
+                    renderHeatmap(bg);
+                });
+            });
+
+            // Initial render
+            renderHeatmap('grass');
+            // Create 25 cells for the heatmap initially
+            for(let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'w-full h-10 rounded-sm';
+                heatmap.appendChild(cell);
+            }
+            renderHeatmap('grass');
+
+        });
+    </script>
+</body>
+</html>

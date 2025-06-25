@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原则性神经网络优化策略浏览器</title>
+    <script src="../javascript/cdn.tailwindcss.com.js"></script>
+    <script src="../javascript/cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/fonts/noto-sans-sc/fonts.css">
+    
+    <!-- Chosen Palette: Scholarly Calm -->
+    <!-- Application Structure Plan: 本应用采用顶部标签导航的单页应用（SPA）结构，分为三大核心优化策略（动态剪枝、参数共享、PEFT放置）和一个战略比较部分。用户点击导航标签可平滑切换内容视图，避免一次性加载过多复杂信息。每个策略内部，关键概念通过卡片式布局和交互式图表展示，引导用户聚焦探索。这种非线性的、以任务为导向的结构，旨在将复杂的学术报告转化为一个自定进度的学习工具，让用户可以根据兴趣深入研究任一主题，从而极大提升了可用性和信息吸收效率。 -->
+    <!-- Visualization & Content Choices: 
+        1. 报告信息: 表2中的优化策略比较。目标: 直观对比不同优化方法的优劣权衡。可视化方法: 交互式雷达图 (Chart.js) 和可交互的HTML表格。交互: 用户可在图表上勾选/取消勾选不同的优化族系，动态比较其在“参数效率”、“延迟降低”、“内存占用”和“适应成本”维度的表现。点击表格行可高亮并查看下方更详细的文本解释。理由: 雷达图非常适合多维度比较，而交互式表格则方便直接查询和排序，比静态图片更具探索性。库: Chart.js, Vanilla JS。
+        2. 报告信息: “功能聚类”、“门控网络”等抽象架构概念。目标: 解释复杂的模型内部机制。可视化方法: 使用纯HTML和Tailwind CSS构建的简化示意图。交互: 鼠标悬停在图示的关键部分时，会显示包含额外解释的工具提示。理由: 该方法在不使用被禁止的SVG或图片格式的前提下，提供了必要的视觉辅助，有助于理解核心概念，且轻量、易于维护。库: HTML/Tailwind CSS/JS。
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 50vh;
+            max-height: 450px;
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-button.active {
+            border-bottom-color: #3b82f6; /* blue-500 */
+            color: #1e3a8a; /* blue-900 */
+            font-weight: 600;
+        }
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .table-row.highlight {
+            background-color: #eff6ff; /* blue-100 */
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="container mx-auto px-4 py-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-slate-900 mb-2">原则性神经网络优化</h1>
+            <p class="text-lg text-slate-600">一个基于层级功能洞察的交互式探索指南</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-slate-200 mb-8 space-x-4 sm:space-x-8">
+            <button class="nav-button py-3 px-2 sm:px-4 text-sm sm:text-base text-slate-600 hover:text-blue-600 active" onclick="showSection('pruning')">动态剪枝</button>
+            <button class="nav-button py-3 px-2 sm:px-4 text-sm sm:text-base text-slate-600 hover:text-blue-600" onclick="showSection('sharing')">参数共享</button>
+            <button class="nav-button py-3 px-2 sm:px-4 text-sm sm:text-base text-slate-600 hover:text-blue-600" onclick="showSection('peft')">PEFT放置</button>
+            <button class="nav-button py-3 px-2 sm:px-4 text-sm sm:text-base text-slate-600 hover:text-blue-600" onclick="showSection('comparison')">策略比较</button>
+        </nav>
+
+        <main>
+            <!-- 动态剪枝部分 -->
+            <section id="pruning" class="content-section active">
+                <div class="text-center mb-8">
+                     <h2 class="text-3xl font-bold text-slate-800">任务自适应与实例感知的动态剪枝</h2>
+                     <p class="mt-2 text-slate-500 max-w-3xl mx-auto">本节探讨超越静态、“一刀切”式剪枝的先进算法。这些算法能根据特定任务和输入实例，动态调整计算图，构建出“液态”般的神经网络，从而在推理时实现更高的效率和适应性。</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-lg text-blue-800 mb-2">核心思想：从静态到动态</h3>
+                        <p class="text-slate-600">传统的剪枝是永久性的，而动态剪枝旨在为每个输入实例实时决定激活哪些组件（如注意力头或神经元）。这种“按需计算”的理念，其基础是认识到组件的“重要性”是依赖于上下文的，而非模型的静态属性。</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-lg text-blue-800 mb-2">实现方式：门控网络</h3>
+                        <p class="text-slate-600">通过训练一个轻量级的“门控”网络，以输入和任务信息为条件，来预测并生成一个二进制掩码，从而控制主模型中计算组件的开关。训练这个门控网络是关键挑战，常用方法包括强化学习或可微松弛技术。</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-1 md:col-span-2">
+                        <h3 class="font-bold text-lg text-blue-800 mb-2">价值与深层分析</h3>
+                        <p class="text-slate-600">最终目标是训练一个庞大的“元模型”，能为每个任务和输入动态实例化出高效的子网络。这模糊了剪枝、动态架构和专家混合（MoE）的界限，开创了自适应计算的新范式，但也对可解释性提出了新的“元解释”挑战。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 参数共享部分 -->
+            <section id="sharing" class="content-section">
+                <div class="text-center mb-8">
+                     <h2 class="text-3xl font-bold text-slate-800">功能导向的参数共享与绑定</h2>
+                     <p class="mt-2 text-slate-500 max-w-3xl mx-auto">本节的核心思想不再是盲目地共享参数以减小模型尺寸，而是首先“发现”模型内部功能相似的层，然后通过“靶向”共享来利用这些学到的“算法对称性”，实现更高效且性能损失更小的压缩。</p>
+                </div>
+                 <div class="grid md:grid-cols-2 gap-6 items-start">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-4">
+                        <h3 class="font-bold text-lg text-green-800 mb-2">指导原则：从启发式到功能驱动</h3>
+                        <p class="text-slate-600">传统参数共享（如ALBERT）是统一的，可能损害性能。新方法利用CKA等度量计算层间“功能相似性”，然后对功能相似的层进行聚类，并在每个“功能簇”内部强制共享参数。这是一种数据驱动的、有原则的共享策略。</p>
+                         <h3 class="font-bold text-lg text-green-800 mb-2">价值与深层分析</h3>
+                        <p class="text-slate-600">这种方法将模型压缩重新定义为“寻找并参数化学到的算法中反复出现的子程序”。它增强了模型的可解释性，并为设计围绕共享功能构建的、更紧凑的新型架构提供了蓝图。这本质上是一种隐式的、由内部信号指导的神经架构搜索。</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                         <h3 class="font-bold text-lg text-green-800 mb-2">功能聚类与参数共享示意图</h3>
+                         <p class="text-slate-500 text-sm mb-4">下图展示了功能导向的参数共享概念。模型中的层（L1-L12）首先通过功能相似性分析被划分到不同的簇中，然后每个簇内的层共享同一组参数。</p>
+                         <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                             <div class="grid grid-cols-3 gap-2 text-center text-xs font-semibold">
+                                 <!-- Cluster 1 -->
+                                 <div class="space-y-1">
+                                     <div class="p-2 rounded bg-red-200 text-red-800 border border-red-300">L1</div>
+                                     <div class="p-2 rounded bg-red-200 text-red-800 border border-red-300">L2</div>
+                                     <div class="p-2 rounded bg-red-200 text-red-800 border border-red-300">L3</div>
+                                     <p class="text-red-600 mt-1">功能簇 A<br>(共享参数 P_A)</p>
+                                 </div>
+                                 <!-- Cluster 2 -->
+                                 <div class="space-y-1">
+                                     <div class="p-2 rounded bg-blue-200 text-blue-800 border border-blue-300">L4</div>
+                                     <div class="p-2 rounded bg-blue-200 text-blue-800 border border-blue-300">L5</div>
+                                     <div class="p-2 rounded bg-blue-200 text-blue-800 border border-blue-300">L8</div>
+                                     <div class="p-2 rounded bg-blue-200 text-blue-800 border border-blue-300">L9</div>
+                                     <p class="text-blue-600 mt-1">功能簇 B<br>(共享参数 P_B)</p>
+                                 </div>
+                                 <!-- Cluster 3 -->
+                                 <div class="space-y-1">
+                                     <div class="p-2 rounded bg-green-200 text-green-800 border border-green-300">L6</div>
+                                     <div class="p-2 rounded bg-green-200 text-green-800 border border-green-300">L7</div>
+                                     <div class="p-2 rounded bg-green-200 text-green-800 border border-green-300">L10</div>
+                                     <div class="p-2 rounded bg-green-200 text-green-800 border border-green-300">L11</div>
+                                     <div class="p-2 rounded bg-green-200 text-green-800 border border-green-300">L12</div>
+                                     <p class="text-green-600 mt-1">功能簇 C<br>(共享参数 P_C)</p>
+                                 </div>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PEFT放置部分 -->
+            <section id="peft" class="content-section">
+                <div class="text-center mb-8">
+                     <h2 class="text-3xl font-bold text-slate-800">参数高效微调(PEFT)模块的策略性放置</h2>
+                     <p class="mt-2 text-slate-500 max-w-3xl mx-auto">标准的PEFT方法（如Adapter）通常在所有层统一插入模块，但这可能是次优的。本节介绍如何利用可解释性工具，识别出模型中最需要为新任务做出改变的“枢轴点”，并进行“外科手术式”的模块插入。</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-lg text-purple-800 mb-2">核心问题：在哪里插入Adapter？</h3>
+                        <p class="text-slate-600">PEFT的本质是在冻结主干网络的基础上，于精确的计算节点上增加可训练参数。由于模型各层功能不同，它们对新任务的适应性需求也不同。因此，关键在于识别出哪些层对于下游任务的适应最为关键。</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                            <h3 class="font-bold text-lg text-purple-800 mb-2">方法1: 相关性引导的插入</h3>
+                            <p class="text-slate-600">在少量任务样本上，使用LRP等归因方法计算各层/组件对预测的贡献度。然后，将有限的Adapter参数预算，优先分配给那些贡献度最高的“高相关性”位置。这是一种由后验分析指导的策略。</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                            <h3 class="font-bold text-lg text-purple-800 mb-2">方法2: 探测“适应准备度”</h3>
+                            <p class="text-slate-600">在微调前，通过探测任务识别那些其表征“最接近”下游任务需求但仍需修改的“任务敏感层”。这些层是Adapter插入的主要候选者。这是一种由前瞻性诊断指导的策略。</p>
+                        </div>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-lg text-purple-800 mb-2">价值与深层分析</h3>
+                        <p class="text-slate-600">这些方法催生了“外科手术式微调”的新范式：先用XAI“诊断”模型对新任务的不足，再“手术式”地在确切位置插入可训练参数。这代表了可解释性与优化的终极融合，即将XAI从“分析工具”转变为“设计工具”。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 策略比较部分 -->
+            <section id="comparison" class="content-section">
+                <div class="text-center mb-8">
+                     <h2 class="text-3xl font-bold text-slate-800">优化策略比较分析</h2>
+                     <p class="mt-2 text-slate-500 max-w-3xl mx-auto">不同的优化技术服务于不同目标，并带来不同的成本与收益。本节提供一个高层次的比较框架，帮助理解不同方法间的权衡，并选择最适合特定场景的技术。</p>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-8 items-center">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                         <h3 class="font-bold text-lg text-slate-800 mb-2">优化族系雷达图</h3>
+                         <p class="text-slate-500 text-sm mb-4">选择下方复选框，在雷达图上对比不同优化族系在四个关键维度上的表现。数值越高代表在该维度上效果越好或成本越低。</p>
+                         <div class="chart-container">
+                             <canvas id="comparisonChart"></canvas>
+                         </div>
+                         <div id="chart-legend" class="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4 text-sm"></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-lg text-slate-800 mb-2">策略详情与权衡</h3>
+                        <p class="text-slate-500 text-sm mb-4">点击下方表格中的任意一行，查看该优化族系的详细介绍和核心权衡。</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left text-slate-500">
+                                <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 rounded-l-lg">优化族系</th>
+                                        <th scope="col" class="px-6 py-3">主要效果</th>
+                                        <th scope="col" class="px-6 py-3 rounded-r-lg">最适用场景</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="comparison-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="table-details" class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 text-blue-800 min-h-[100px]">
+                            <p class="text-sm">请点击上方表格中的一行以查看详细信息。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const sections = document.querySelectorAll('.content-section');
+        const navButtons = document.querySelectorAll('.nav-button');
+
+        function showSection(sectionId) {
+            sections.forEach(section => {
+                section.classList.toggle('active', section.id === sectionId);
+            });
+            navButtons.forEach(button => {
+                button.classList.toggle('active', button.getAttribute('onclick').includes(`'${sectionId}'`));
+            });
+        }
+
+        // --- 策略比较部分的数据和逻辑 ---
+        const comparisonData = [
+            {
+                family: '结构化剪枝',
+                principle: '静态地识别并移除冗余组件（如注意力头、神经元）。',
+                effect: '减少参数量和FLOPs',
+                scenario: '为特定任务创建一个单一、更小、固定的模型。',
+                challenge: '若剪枝不当可能导致精度下降；“一刀切”式。',
+                xai_link: '使用归因方法（LRP）来识别组件的重要性。',
+                citation: 'Voita et al. (10)',
+                color: 'rgba(239, 68, 68, 0.8)', // red-500
+                borderColor: 'rgb(239, 68, 68)',
+                scores: { '参数效率': 7, '延迟降低': 8, '内存占用': 7, '适应成本': 3 }
+            },
+            {
+                family: '动态架构',
+                principle: '训练一个对组件移除具有鲁棒性的单一模型，或能动态改变其计算路径。',
+                effect: '降低平均延迟；自适应计算',
+                scenario: '输入复杂度变化的场景；按需进行效率/精度权衡。',
+                challenge: '训练过程可能更复杂；需要一个策略/门控网络。',
+                xai_link: '使用可解释性指导动态策略（IA-RED²）或使层具有鲁棒性（LayerDrop）。',
+                citation: 'Huang et al. (8)',
+                color: 'rgba(59, 130, 246, 0.8)', // blue-500
+                borderColor: 'rgb(59, 130, 246)',
+                scores: { '参数效率': 5, '延迟降低': 9, '内存占用': 6, '适应成本': 4 }
+            },
+            {
+                family: '参数共享',
+                principle: '在多个层或组件之间重用同一组参数。',
+                effect: '极大减少内存占用（模型尺寸）',
+                scenario: '从单一模型进行多任务学习；压缩非常深的模型。',
+                challenge: '若绑定功能迥异的层，可能导致性能损失。',
+                xai_link: '使用功能相似性度量来指导哪些层应该共享参数。',
+                citation: 'Lan et al. (ALBERT, 28)',
+                color: 'rgba(34, 197, 94, 0.8)', // green-500
+                borderColor: 'rgb(34, 197, 94)',
+                scores: { '参数效率': 9, '延迟降低': 4, '内存占用': 9, '适应成本': 6 }
+            },
+            {
+                family: 'PEFT (Adapter)',
+                principle: '冻结基础模型，为新任务插入小型可训练模块。',
+                effect: '参数高效的多任务适应；避免灾难性遗忘',
+                scenario: '从单一、冻结的预训练模型服务多个下游任务。',
+                challenge: '性能可能略低于全量微调；统一插入可能非最优。',
+                xai_link: '使用层级探测来指导模块的策略性放置。',
+                citation: 'Houlsby et al. (50)',
+                color: 'rgba(168, 85, 247, 0.8)', // purple-500
+                borderColor: 'rgb(168, 85, 247)',
+                scores: { '参数效率': 10, '延迟降低': 5, '内存占用': 8, '适应成本': 10 }
+            }
+        ];
+
+        const tableBody = document.getElementById('comparison-table-body');
+        const detailsPanel = document.getElementById('table-details');
+
+        comparisonData.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.className = 'bg-white border-b hover:bg-slate-50 cursor-pointer table-row';
+            row.innerHTML = `
+                <th scope="row" class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">${item.family}</th>
+                <td class="px-6 py-4">${item.effect}</td>
+                <td class="px-6 py-4">${item.scenario}</td>
+            `;
+            row.addEventListener('click', () => {
+                document.querySelectorAll('.table-row').forEach(r => r.classList.remove('highlight'));
+                row.classList.add('highlight');
+                detailsPanel.innerHTML = `
+                    <h4 class="font-bold mb-1">${item.family}</h4>
+                    <p class="text-sm"><strong>指导原则:</strong> ${item.principle}</p>
+                    <p class="text-sm mt-1"><strong>核心挑战:</strong> ${item.challenge}</p>
+                    <p class="text-sm mt-1"><strong>与可解释性的联系:</strong> ${item.xai_link}</p>
+                `;
+            });
+            tableBody.appendChild(row);
+        });
+
+        const legendContainer = document.getElementById('chart-legend');
+        let chart;
+        let visibleDatasets = new Set(comparisonData.map(d => d.family));
+
+        function createOrUpdateChart() {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            
+            const filteredData = comparisonData.filter(d => visibleDatasets.has(d.family));
+
+            const labels = Object.keys(comparisonData[0].scores);
+            const datasets = filteredData.map(item => ({
+                label: item.family,
+                data: labels.map(label => item.scores[label]),
+                backgroundColor: item.color,
+                borderColor: item.borderColor,
+                borderWidth: 2,
+                pointBackgroundColor: item.borderColor,
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: item.borderColor,
+            }));
+
+            if (chart) {
+                chart.data.labels = labels;
+                chart.data.datasets = datasets;
+                chart.update();
+            } else {
+                chart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.r !== null) {
+                                            label += context.parsed.r;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                },
+                                pointLabels: {
+                                    font: {
+                                        size: 13,
+                                        weight: '500'
+                                    },
+                                    color: '#475569' // slate-600
+                                },
+                                ticks: {
+                                    backdropColor: 'rgba(255, 255, 255, 0.75)',
+                                    color: '#64748b', // slate-500
+                                    stepSize: 2,
+                                    
+                                },
+                                suggestedMin: 0,
+                                suggestedMax: 10
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function setupLegend() {
+            comparisonData.forEach(item => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'flex items-center cursor-pointer';
+                legendItem.innerHTML = `
+                    <input type="checkbox" id="legend-${item.family}" class="w-4 h-4 mr-2" checked style="accent-color:${item.borderColor};">
+                    <span style="color:${item.borderColor};">${item.family}</span>
+                `;
+                legendContainer.appendChild(legendItem);
+
+                document.getElementById(`legend-${item.family}`).addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        visibleDatasets.add(item.family);
+                    } else {
+                        visibleDatasets.delete(item.family);
+                    }
+                    createOrUpdateChart();
+                });
+            });
+        }
+        
+        window.onload = () => {
+            setupLegend();
+            createOrUpdateChart();
+        };
+
+    </script>
+</body>
+</html>
